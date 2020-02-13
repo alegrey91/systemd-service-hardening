@@ -11,13 +11,13 @@ The images show, step-by-step, how to harden the service using specific directiv
 
 Systemd made available an interesting tool named **systemd-analyze**.
 
-The `systemd-analyze security` command generate a report of the security directives applied to each service present into our machine.
+The `systemd-analyze security` command generates a report about security exposure for each service present in our distribution.
 
 ![](./debug.png)
 
 This allow us to check the improvements applied to our systemd service, directive by directive.
 
-As you can see more of the systemd services are actually marked as totally **UNSAFE**.
+As you can see, more of the systemd services are actually marked as **UNSAFE**, this probably because not all applications still apply the features made available by systemd.
 
 
 
@@ -27,11 +27,10 @@ Let's start from a basic command to start `python3 -m http.server` as a service:
 
 ```[Unit]
 Description=Job that runs the python http.server daemon
-Documentation=man:SimpleHTTPServer(1)
+Documentation=https://docs.python.org/3/library/http.server.html
 
 [Service]
 Type=simple
-WorkingDirectory=/home/user
 ExecStart=/usr/bin/python3 -m http.server
 ExecStop=/bin/kill -9 $MAINPID
 
@@ -39,15 +38,15 @@ ExecStop=/bin/kill -9 $MAINPID
 WantedBy=multi-user.target
 ```
 
-Checking the security analysis through `systemd-analyze security` we obtain the following result:
+Checking the security exposure through `systemd-analyze security` we obtain the following result:
 
 ![](./service-start.png)
 
 The security value is actually **9.6**/**10** and is marked as **UNSAFE**.
 
-Let's see now, how to harden the current service to be marked as safe.
+Let's see now, how to harden the current service to make it safer.
 
-N.B. Not all of the following directives are really useful for the current service. It's just a demonstration on how to reduce the exposure of a generic systemd service.
+**N.B.** Not all of the following directives will be useful for the current service. It's just a demonstration on how to reduce the exposure for a generic systemd service.
 
  
 
@@ -59,11 +58,10 @@ This is how the service appear after the insertion of the following directive:
 
 ```
 Description=Job that runs the python http.server daemon
-Documentation=man:SimpleHTTPServer(1)
+Documentation=https://docs.python.org/3/library/http.server.html
 
 [Service]
 Type=simple
-WorkingDirectory=/home/user
 ExecStart=/usr/bin/python3 -m http.server
 ExecStop=/bin/kill -9 $MAINPID
 
@@ -120,11 +118,10 @@ Once we added the other directives to the service, we obtained a service like th
 
 ```[Unit]
 Description=Job that runs the python http.server daemon
-Documentation=man:SimpleHTTPServer(1)
+Documentation=https://docs.python.org/3/library/http.server.html
 
 [Service]
 Type=simple
-WorkingDirectory=/home/user
 ExecStart=/usr/bin/python3 -m http.server
 ExecStop=/bin/kill -9 $MAINPID
 
@@ -139,7 +136,7 @@ ProtectKernelModules=yes
 ProtectControlGroups=yes
 PrivateDevices=yes
 RestrictSUIDSGID=true
-IPAddressDeny=any
+IPAddressAllow=192.168.1.0/24
 
 [Install]
 WantedBy=multi-user.target
@@ -159,3 +156,4 @@ Well done! We obtained a good result passing from **9.6** to **4.9**, partially 
 3. https://www.ctrl.blog/entry/systemd-service-hardening.html
 4. https://www.redhat.com/sysadmin/mastering-systemd
 5. http://man7.org/linux/man-pages/man7/capabilities.7.html
+6. https://tim.siosm.fr/blog/2018/09/02/linux-system-hardening-thanks-to-systemd/
