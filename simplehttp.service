@@ -1,0 +1,25 @@
+[Unit]
+Description=Job that runs the python http.server daemon
+Documentation=man:SimpleHTTPServer(1)
+
+[Service]
+Type=simple
+WorkingDirectory=/home/alessio
+ExecStart=/usr/bin/python3 -m http.server
+ExecStop=/bin/kill -9 $MAINPID
+
+# Sandboxing features
+PrivateTmp=yes
+NoNewPrivileges=true
+ProtectSystem=strict
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE CAP_DAC_READ_SEARCH
+RestrictNamespaces=uts ipc pid user cgroup
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+PrivateDevices=yes
+RestrictSUIDSGID=true
+IPAddressDeny=any
+
+[Install]
+WantedBy=multi-user.target
