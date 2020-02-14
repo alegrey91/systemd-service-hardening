@@ -1,10 +1,10 @@
 [Unit]
 Description=Job that runs the python http.server daemon
-Documentation=man:SimpleHTTPServer(1)
+Documentation=https://docs.python.org/3/library/http.server.html
 
 [Service]
 Type=simple
-WorkingDirectory=/home/alessio
+WorkingDirectory=/home/user
 ExecStart=/usr/bin/python3 -m http.server
 ExecStop=/bin/kill -9 $MAINPID
 
@@ -19,7 +19,7 @@ ProtectKernelModules=yes
 ProtectControlGroups=yes
 PrivateDevices=yes
 RestrictSUIDSGID=true
-IPAddressDeny=any
+IPAddressAllow=192.168.1.0/24
 
 [Install]
 WantedBy=multi-user.target
