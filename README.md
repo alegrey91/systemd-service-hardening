@@ -104,7 +104,7 @@ Add the following row:
 
 ```RestrictNamespaces=uts ipc pid user cgroup```
 
-As you can see above, the `net` namespace has not been set due to the network work of our service.
+As you can see above, the `net` namespace has not been set due to the fact that the service needs to bind itself on a network interface.
 
 Isolating `net` from a network service will cause the uselessness of this.
 
