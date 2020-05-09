@@ -1,0 +1,20 @@
+[Unit]
+Description=The PHP FastCGI Process Manager
+After=syslog.target network.target
+
+[Service]
+Type=notify
+ExecStart=/usr/sbin/php-fpm --nodaemonize
+ExecReload=/bin/kill -USR2 $MAINPID
+RuntimeDirectory=php-fpm
+RuntimeDirectoryMode=0755
+
+# Hardening
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectSystem=full
+PrivateDevices=true
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

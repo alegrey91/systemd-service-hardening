@@ -1,0 +1,88 @@
+---
+
+- name: PHP-FPM Service Hardening Demo
+  hosts: php-webserver
+  tasks:
+      - name: Set hostname
+        hostname:
+          name: php-fpm-service-hardening.demo
+
+      - name: Update packages repository
+        yum:
+          name: '*'
+          state: latest
+
+      - name: Install nginx package
+        yum:
+          name: nginx
+          state: latest
+
+      - name: Install remi rpm
+        yum:
+          name: http://rpms.remirepo.net/enterprise/remi-release-8.rpm
+          state: present
+
+      - name: Reset php module
+        command: |
+          dnf module reset -y php
+
+      - name: Enable php:remi module
+        command: |
+          dnf module enable -y php:remi-7.4
+
+      - name: Update packages
+        yum:
+          name: '*'
+          state: latest
+
+      - name: Install php packages
+        yum:
+          name: "{{ item }}"
+          state: latest
+        with_items:
+          - "php"
+          - "php-fpm"
+          - "php-gd"
+          - "php-mysqlnd"
+
+      - name: Start php service
+        systemd:
+          name: php-fpm
+          state: started
+          enabled: yes
+
+      - name: Start nginx service
+        systemd:
+          name: nginx
+          state: started
+          enabled: yes
+
+      - name: Enable firewall rules
+        firewalld:
+          service: "{{ item }}"
+          permanent: yes
+          immediate: yes
+          state: enabled
+          zone: public
+        with_items:
+          - "http"
+          - "https"
+
+      - name: Deploy webshell for tests
+        copy:
+          src: webshell.php
+          dest: /usr/share/nginx/html/webshell.php
+          mode: '0655'
+
+      - name: Deploy vulnerable sudoers file
+        copy: 
+          src: sudoers
+          dest: /etc/sudoers
+          owner: root
+          group: root
+          mode: '0440'
+
+      - name: Disable SELinux for tests
+        selinux:
+          state: disabled
+
