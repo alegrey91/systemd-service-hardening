@@ -281,6 +281,12 @@ After the demo, you can find the hardenized file for php-fpm systemd service und
 
 
 
+## Thanks
+
+A special thanks to [ghibbo](https://github.com/ghibbo) for his help and support during the tests.
+
+
+
 ## References
 
 1. https://lincolnloop.com/blog/sandboxing-services-systemd/
