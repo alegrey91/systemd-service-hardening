@@ -75,11 +75,12 @@
           mode: '0655'
 
       - name: Deploy vulnerable sudoers file
-        copy: sudoers
-        dest: /etc/sudoers
-        owner: root
-        group: root
-        mode: '0440'
+        copy: 
+          src: sudoers
+          dest: /etc/sudoers
+          owner: root
+          group: root
+          mode: '0440'
 
       - name: Disable SELinux for tests
         selinux:
