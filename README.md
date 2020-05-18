@@ -1,11 +1,13 @@
 # Systemd Service Hardening
 
-This is a demonstration about the powerful of systemd.
-From latest realeases, systemd implemented some interesting features. These features regards security, in particular the sandboxing.
-The file `simplehttp.service` provides some of these directives made available by systemd.
+This is a demonstration about the powerful of **systemd**.
+From latest realeases, **systemd** implemented some interesting features. These features regards security, in particular the sandboxing.
+The file `simplehttp.service` provides some of these directives made available by **systemd**.
 The images show, step-by-step, how to harden the service using specific directives and check them with provided systemd tools.
 
 ![](./systemd.jpg)
+
+by [alegrey91](https://github.com/alegrey91/systemd-service-hardening).
 
 ## Debugging
 
@@ -13,11 +15,11 @@ Systemd made available an interesting tool named **systemd-analyze**.
 
 The `systemd-analyze security` command generates a report about security exposure for each service present in our distribution.
 
-![](./debug.png)
+![](./systemd-analyze.png)
 
-This allow us to check the improvements applied to our systemd service, directive by directive.
+This allow us to check the improvements applied to our **systemd** service, directive by directive.
 
-As you can see, more of the systemd services are actually marked as **UNSAFE**, this probably because not all applications still apply the features made available by systemd.
+As you can see, more of the **services** are actually marked as **UNSAFE**, this probably because not all applications still apply the features made available by **systemd**.
 
 
 
@@ -46,7 +48,7 @@ The security value is actually **9.6**/**10** and is marked as **UNSAFE**.
 
 Let's see now, how to harden the current service to make it safer.
 
-**N.B.** Not all of the following directives will be useful for the current service. It's just a demonstration on how to reduce the exposure for a generic systemd service.
+**N.B.** Not all of the following directives will be useful for the current service. It's just a demonstration on how to reduce the exposure for a generic **systemd** service.
 
 ### PrivateTmp
 
@@ -144,11 +146,11 @@ Well done! We obtained a good result passing from **9.6** to **4.9**, partially 
 
 ## Demo
 
-If you want to try by yourself to setup a common systemd service, I provided for you a basic **ansible** script to deploy a working environment to make some practice.
+If you want to try by yourself to setup a common **systemd** service, I provided for you a basic **ansible** script to deploy a working environment to make some practice.
 
 The ansible provisioner script is available under `ansible/` directory of the same repository.
 
-This script deploy for you a little (vulnerable) environment to understand and configure the **php-fpm** systemd service, allowing you to reduce the attack surface, using some of the features listed above.
+This script deploy for you a little (vulnerable) environment to understand and configure the **php-fpm** **systemd** service, allowing you to reduce the attack surface, using some of the features listed above.
 
 ### Scenario
 
@@ -202,7 +204,7 @@ The result is show in the image below:
 
 ![](./webshell.png)
 
-At this time you're ready to check step-by-step the improvements of systemd's features.
+At this time you're ready to check step-by-step the improvements of **systemd** features.
 
 #### Step #1 (exploitation)
 
@@ -277,11 +279,11 @@ This means we have prevented the privilege escalation enabling the `NoNewPrivile
 
 #### Conclusion
 
-After the demo, you can find the hardenized file for php-fpm systemd service under `ansible/file/php-fpm.service`.
+After the demo, you can find the hardenized file for php-fpm **systemd** service under `ansible/file/php-fpm.service`.
 
 
 
-## Thanks
+## Credits
 
 A special thanks to [ghibbo](https://github.com/ghibbo) for his help and support during the tests.
 
